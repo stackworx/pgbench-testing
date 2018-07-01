@@ -1,0 +1,28 @@
+#
+# Use version 2 so that we can easily cap memeory and cpu limits
+#
+version: '2.2'
+services:
+  postgres:
+    image: postgres:10.4
+    command: -c 'shared_buffers=256MB' -c 'max_connections=20'
+    environment:
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+      POSTGRES_PASSWORD: password
+    volumes: 
+      - postgres_db:/var/lib/postgresql/data postgres
+    # Modify this to match envireonments you want to test
+    cpus: 2
+    mem_limit: 2024m
+  pg_bench:
+    image: postgres:10.4
+    command: bench.sh
+    volumes: 
+      - '$PWD/bench.sh:/usr/local/bin/bench.sh'
+    environment:
+      PGPASSWORD: password
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_db:
